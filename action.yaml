@@ -1,0 +1,19 @@
+name: 'MASS Release Notes Action'
+description: 'This action creates a new PR to the server repo upon successful release.'
+inputs:
+  github_token:
+    description: 'The GitHub API access token to use for authentication.'
+    required: true
+  new_release_version:
+    description: 'The new frontend release version.'
+    required: true
+branding:
+  icon: 'box'
+  color: 'purple'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - --github_token=${{ inputs.github_token }}
+    - --new_release_version=${{ inputs.new_release_version }}
