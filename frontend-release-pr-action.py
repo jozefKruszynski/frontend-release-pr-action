@@ -88,9 +88,12 @@ if __name__ == "__main__":
         branch=new_branch_name,
     )
 
+    label = github.label.Label(name="frontend-release", color="17A589")
+
     server_repo.create_pull(
         title=new_branch_name,
         body=f"Update files for {new_version_tag}",
         head=new_branch_name,
         base="main",
+        labels=[label],
     )
