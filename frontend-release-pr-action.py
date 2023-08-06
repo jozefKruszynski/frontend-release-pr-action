@@ -20,13 +20,11 @@ parser.add_argument(
 
 
 if __name__ == "__main__":
-    # args = parser.parse_args()
+    args = parser.parse_args()
 
-    github = Github(
-        auth=Auth.Token("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")
-    )  # args.github_token))
+    github = Github(auth=Auth.Token(args.github_token))
 
-    new_version_tag = "2.0.13"  # args.new_release_version
+    new_version_tag = args.new_release_version
     MAIN = "main"
     ORGANIZATION = "music-assistant"
     SERVER_REPO = "server"
