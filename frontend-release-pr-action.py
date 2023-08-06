@@ -1,7 +1,7 @@
 import argparse
 
 import toml
-from github import Auth, Github
+from github import Auth, Github, Label
 
 parser = argparse.ArgumentParser()
 
@@ -20,15 +20,18 @@ parser.add_argument(
 
 
 if __name__ == "__main__":
-    args = parser.parse_args()
+    # args = parser.parse_args()
 
-    github = Github(auth=Auth.Token(args.github_token))
+    github = Github(
+        auth=Auth.Token("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")
+    )  # args.github_token))
 
-    new_version_tag = args.new_release_version
+    new_version_tag = "2.0.13"  # args.new_release_version
     MAIN = "main"
     ORGANIZATION = "music-assistant"
     SERVER_REPO = "server"
     FRONTEND_DEPENDENCY = "music-assistant-frontend"
+    LABEL_NAME = "frontend-release"
 
     server_repo = github.get_repo(f"{ORGANIZATION}/{SERVER_REPO}")
 
@@ -88,7 +91,7 @@ if __name__ == "__main__":
         branch=new_branch_name,
     )
 
-    label = github.label.Label(name="frontend-release", color="17A589")
+    label = server_repo.get_label(LABEL_NAME)
 
     server_repo.create_pull(
         title=new_branch_name,
