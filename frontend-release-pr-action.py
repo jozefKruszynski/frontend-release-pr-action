@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     pull_request = server_repo.create_pull(
         title=new_branch_name,
-        body=f"Update files for {new_version_tag}",
+        body=f"Bump frontend to {new_version_tag}",
         head=new_branch_name,
         base="main",
     )
