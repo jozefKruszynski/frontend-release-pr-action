@@ -91,10 +91,11 @@ if __name__ == "__main__":
 
     label = server_repo.get_label(LABEL_NAME)
 
-    server_repo.create_pull(
+    pull_request = server_repo.create_pull(
         title=new_branch_name,
         body=f"Update files for {new_version_tag}",
         head=new_branch_name,
         base="main",
-        labels=[label],
     )
+
+    pull_request.add_to_labels(label)
