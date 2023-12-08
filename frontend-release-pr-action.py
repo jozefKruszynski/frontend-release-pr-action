@@ -1,7 +1,7 @@
 import argparse
 
 import toml
-from github import Auth, Github, Label
+from github import Auth, Github
 
 parser = argparse.ArgumentParser()
 
@@ -30,43 +30,39 @@ if __name__ == "__main__":
     SERVER_REPO = "server"
     FRONTEND_DEPENDENCY = "music-assistant-frontend"
     LABEL_NAME = "frontend-release"
+    MAINTENANCE_LABEL_NAME = "maintenance"
 
     server_repo = github.get_repo(f"{ORGANIZATION}/{SERVER_REPO}")
 
+    # Get pyproject.toml extract current version and update with new version
     pyproject_file = server_repo.get_contents("pyproject.toml", ref=MAIN)
-
-    requirements_file = server_repo.get_contents("requirements_all.txt", ref=MAIN)
-
     existing_pyproject_contents = toml.loads(
         pyproject_file.decoded_content.decode("utf-8")
     )
-    existing_requirements_contents = requirements_file.decoded_content.decode("utf-8")
+    server_dependencies = existing_pyproject_contents["project"][
+        "optional-dependencies"
+    ]["server"]
+    music_assistant_frontend_dependecy = ""
+    for x in server_dependencies:
+        if x.startswith(FRONTEND_DEPENDENCY):
+            music_assistant_frontend_dependecy = x
 
-    existing_pyproject_contents["project"]["optional-dependencies"]["server"] = [
-        f"{FRONTEND_DEPENDENCY}=={new_version_tag}"
-        if "music-assistant-frontend" in x
-        else x
-        for x in existing_pyproject_contents["project"]["optional-dependencies"][
-            "server"
-        ]
-    ]
+    music_assistant_frontend_dependecy_new = music_assistant_frontend_dependecy.replace(
+        music_assistant_frontend_dependecy.split("==")[1], new_version_tag
+    )
+    existing_pyproject_file = pyproject_file.decoded_content.decode("utf-8")
+    pyproject_new = existing_pyproject_file.replace(
+        music_assistant_frontend_dependecy, music_assistant_frontend_dependecy_new
+    )
 
-    updated_pyproject = toml.dumps(existing_pyproject_contents)
-
-    updated_lines = []
-    for line in existing_requirements_contents.strip().split("\n"):
-        package = line.strip().split("==")[0].lower()
-        if package == FRONTEND_DEPENDENCY.lower():
-            updated_lines.append(f"{FRONTEND_DEPENDENCY}=={new_version_tag}")
-        else:
-            updated_lines.append(line)
-
-    updated_requirements_contents = "\n".join(updated_lines)
-
-    print(updated_requirements_contents)
+    # Get requirements_all.txt and update with new version
+    requirements_file = server_repo.get_contents("requirements_all.txt", ref=MAIN)
+    existing_requirements_file = requirements_file.decoded_content.decode("utf-8")
+    requirements_new = existing_requirements_file.replace(
+        music_assistant_frontend_dependecy, music_assistant_frontend_dependecy_new
+    )
 
     # Create new branch and PR
-
     ref = server_repo.get_git_ref("heads/main")
     sha = ref.object.sha
     new_branch_name = f"frontend-{new_version_tag}"
@@ -77,19 +73,21 @@ if __name__ == "__main__":
     server_repo.update_file(
         path="pyproject.toml",
         message=f"Update pyproject.toml for {new_version_tag}",
-        content=updated_pyproject,
+        content=pyproject_new,
         sha=pyproject_file.sha,
         branch=new_branch_name,
     )
     server_repo.update_file(
         path="requirements_all.txt",
         message=f"Update requirements_all.txt for {new_version_tag}",
-        content=updated_requirements_contents,
+        content=requirements_new,
         sha=requirements_file.sha,
         branch=new_branch_name,
     )
 
-    label = server_repo.get_label(LABEL_NAME)
+    labels = []
+    labels.append(server_repo.get_label(LABEL_NAME))
+    labels.append(server_repo.get_label(MAINTENANCE_LABEL_NAME))
 
     pull_request = server_repo.create_pull(
         title=new_branch_name,
@@ -98,4 +96,4 @@ if __name__ == "__main__":
         base="main",
     )
 
-    pull_request.add_to_labels(label)
+    pull_request.add_to_labels(labels)

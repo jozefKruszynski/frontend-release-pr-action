@@ -1,2 +1,2 @@
-PyGithub==v1.59.0
+PyGithub==v2.1.1
 toml==0.10.2
