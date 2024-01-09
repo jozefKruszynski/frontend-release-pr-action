@@ -85,10 +85,6 @@ if __name__ == "__main__":
         branch=new_branch_name,
     )
 
-    labels = []
-    labels.append(server_repo.get_label(LABEL_NAME))
-    labels.append(server_repo.get_label(MAINTENANCE_LABEL_NAME))
-
     pull_request = server_repo.create_pull(
         title=new_branch_name,
         body=f"Bump frontend to {new_version_tag}",
@@ -96,4 +92,6 @@ if __name__ == "__main__":
         base="main",
     )
 
-    pull_request.add_to_labels(labels)
+    pull_request.add_to_labels(
+        server_repo.get_label(LABEL_NAME), server_repo.get_label(MAINTENANCE_LABEL_NAME)
+    )
