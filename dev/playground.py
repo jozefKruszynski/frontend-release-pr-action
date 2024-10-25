@@ -6,7 +6,7 @@ from github import Auth, Github, Label
 github = Github(auth=Auth.Token(os.environ["GITHUB_TOKEN"]))
 
 new_version_tag = "566"
-MAIN = "main"
+BRANCH = "dev"
 ORGANIZATION = "music-assistant"
 SERVER_REPO = "server"
 FRONTEND_DEPENDENCY = "music-assistant-frontend"
@@ -16,7 +16,7 @@ MAINTENANCE_LABEL_NAME = "maintenance"
 server_repo = github.get_repo(f"{ORGANIZATION}/{SERVER_REPO}")
 
 # Get pyproject.toml extract current version and update with new version
-pyproject_file = server_repo.get_contents("pyproject.toml", ref=MAIN)
+pyproject_file = server_repo.get_contents("pyproject.toml", ref=BRANCH)
 existing_pyproject_contents = toml.loads(pyproject_file.decoded_content.decode("utf-8"))
 server_dependencies = existing_pyproject_contents["project"]["optional-dependencies"][
     "server"
@@ -35,7 +35,7 @@ new_file = file.replace(
 )
 
 # Get requirements_all.txt and update with new version
-requirements_file = server_repo.get_contents("requirements_all.txt", ref=MAIN)
+requirements_file = server_repo.get_contents("requirements_all.txt", ref=BRANCH)
 existing_requirements_file = requirements_file.decoded_content.decode("utf-8")
 requirements_new = existing_requirements_file.replace(
     music_assistant_frontend_dependecy, music_assistant_frontend_dependecy_new
