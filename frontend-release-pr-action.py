@@ -25,7 +25,7 @@ if __name__ == "__main__":
     github = Github(auth=Auth.Token(args.github_token))
 
     new_version_tag = args.new_release_version
-    MAIN = "main"
+    MAIN = "dev"
     ORGANIZATION = "music-assistant"
     SERVER_REPO = "server"
     FRONTEND_DEPENDENCY = "music-assistant-frontend"
