@@ -25,7 +25,7 @@ if __name__ == "__main__":
     github = Github(auth=Auth.Token(args.github_token))
 
     new_version_tag = args.new_release_version
-    MAIN = "dev"
+    BRANCH = "dev"
     ORGANIZATION = "music-assistant"
     SERVER_REPO = "server"
     FRONTEND_DEPENDENCY = "music-assistant-frontend"
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     server_repo = github.get_repo(f"{ORGANIZATION}/{SERVER_REPO}")
 
     # Get pyproject.toml extract current version and update with new version
-    pyproject_file = server_repo.get_contents("pyproject.toml", ref=MAIN)
+    pyproject_file = server_repo.get_contents("pyproject.toml", ref=BRANCH)
     existing_pyproject_contents = toml.loads(
         pyproject_file.decoded_content.decode("utf-8")
     )
@@ -56,14 +56,14 @@ if __name__ == "__main__":
     )
 
     # Get requirements_all.txt and update with new version
-    requirements_file = server_repo.get_contents("requirements_all.txt", ref=MAIN)
+    requirements_file = server_repo.get_contents("requirements_all.txt", ref=BRANCH)
     existing_requirements_file = requirements_file.decoded_content.decode("utf-8")
     requirements_new = existing_requirements_file.replace(
         music_assistant_frontend_dependecy, music_assistant_frontend_dependecy_new
     )
 
     # Create new branch and PR
-    ref = server_repo.get_git_ref("heads/main")
+    ref = server_repo.get_git_ref(f"heads/{BRANCH}")
     sha = ref.object.sha
     new_branch_name = f"frontend-{new_version_tag}"
     new_branch = server_repo.create_git_ref(
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         title=new_branch_name,
         body=f"Bump frontend to {new_version_tag}",
         head=new_branch_name,
-        base="main",
+        base=BRANCH,
     )
 
     pull_request.add_to_labels(
