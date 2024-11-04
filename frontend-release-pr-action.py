@@ -39,9 +39,7 @@ if __name__ == "__main__":
     existing_pyproject_contents = toml.loads(
         pyproject_file.decoded_content.decode("utf-8")
     )
-    server_dependencies = existing_pyproject_contents["project"][
-        "optional-dependencies"
-    ]["server"]
+    server_dependencies = existing_pyproject_contents["project"]["dependencies"]
     music_assistant_frontend_dependecy = ""
     for x in server_dependencies:
         if x.startswith(FRONTEND_DEPENDENCY):
